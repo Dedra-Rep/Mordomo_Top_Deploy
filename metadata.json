@@ -1,0 +1,7 @@
+{
+  "name": "Mordomo.AI - US Edition",
+  "description": "Premium AI personal shopper specializing in Amazon and eBay recommendations with a custom Açaí-themed interface.",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}
