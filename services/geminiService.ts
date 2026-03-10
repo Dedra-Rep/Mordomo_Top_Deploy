@@ -1,4 +1,4 @@
-import { InputContext, Locale, GroundingSource } from "../types";
+import { InputContext, Locale, GroundingSource } from "../types.js";
 
 export class GeminiService {
   async getRecommendations(context: InputContext): Promise<{ text: string; OUTPUT: any; sources: GroundingSource[] }> {

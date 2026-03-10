@@ -1,5 +1,4 @@
-
-import { UserRole, Locale } from './types';
+import { UserRole, Locale } from './types.js';
 
 export const REGION_CONFIGS: Record<Locale, {
   market: string;

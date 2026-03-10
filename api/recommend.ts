@@ -1,7 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { GoogleGenAI, Type } from "@google/genai";
-import { REGION_CONFIGS } from "../constants";
-import { InputContext, GroundingSource } from "../types";
+import { REGION_CONFIGS } from "../constants.js";
+import { InputContext, GroundingSource } from "../types.js";
 
 export const maxDuration = 60; // Extend Vercel timeout for Gemini requests
 
