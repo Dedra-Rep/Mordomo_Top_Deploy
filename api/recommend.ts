@@ -3,22 +3,35 @@ import { GoogleGenAI, Type } from "@google/genai";
 import { REGION_CONFIGS } from "../constants";
 import { InputContext, GroundingSource } from "../types";
 
+export const maxDuration = 60; // Extend Vercel timeout for Gemini requests
+
 export default async function handler(req: VercelRequest, res: VercelResponse) {
+    console.log(`[API /recommend] Method: ${req.method} called`);
+
     if (req.method !== 'POST') {
         return res.status(405).json({ error: 'Method not allowed' });
     }
 
     try {
         const context: InputContext = req.body;
+        console.log("[API /recommend] Received Payload:", JSON.stringify(context || {}));
 
         if (!context || !context.query || !context.locale) {
+            console.error("[API /recommend] Missing context properties.");
             return res.status(400).json({ error: 'Missing required context fields' });
         }
 
-        const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+        const apiKey = process.env.API_KEY;
+        if (!apiKey) {
+            console.error("[API /recommend] CRITICAL: API KEY IS MISSING IN ENVIRONMENT VARIABLES.");
+            return res.status(500).json({ error: 'Missing API Key configuration on Vercel server. Please add VITE_API_KEY in the Vercel Dashboard.' });
+        }
+
+        const ai = new GoogleGenAI({ apiKey });
         const config = REGION_CONFIGS[context.locale];
 
         if (!config) {
+            console.error("[API /recommend] Invalid locale:", context.locale);
             return res.status(400).json({ error: 'Invalid locale' });
         }
 
@@ -52,6 +65,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       - Sophisticated, professional British butler (speaking the appropriate language).
       - Concisely explain why these choices represent the best value/quality.
     `;
+
+        console.log("[API /recommend] Calling Gemini AI...");
 
         const response = await ai.models.generateContent({
             model: "gemini-3-pro-preview",
@@ -95,6 +110,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             }
         });
 
+        console.log("[API /recommend] Gemini response received successfully.");
+
         const result = JSON.parse(response.text || '{}');
 
         const sources: GroundingSource[] = response.candidates?.[0]?.groundingMetadata?.groundingChunks
@@ -102,14 +119,18 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             .map(chunk => ({ title: chunk.web!.title || "", uri: chunk.web!.uri || "" })) || [];
 
         return res.status(200).json({ ...result, sources });
-    } catch (e) {
-        console.error("Mordomo Engine Failure:", e);
+    } catch (e: any) {
+        console.error("[API /recommend] Mordomo Engine Failure! Full Stack:", e);
+
+        // Instead of hiding the error behind a 200 OK, we explicitly return 500 when something breaks, 
+        // so it shows up correctly in Network tabs and Vercel logs.
         const isBR = req.body?.locale === 'pt-BR';
         const errorText = isBR ? "Peço mil desculpas, senhor. Encontrei uma instabilidade nos dados do mercado brasileiro. Podemos tentar novamente?" : "I deeply apologize, sir. I encountered a momentary disruption in the market data feed. Shall we re-examine your request?";
-        return res.status(200).json({
-            text: errorText,
-            OUTPUT: { recommendations: [] },
-            sources: []
+
+        return res.status(500).json({
+            error: 'Internal Server Error',
+            message: e.message || String(e),
+            fallbackText: errorText
         });
     }
 }

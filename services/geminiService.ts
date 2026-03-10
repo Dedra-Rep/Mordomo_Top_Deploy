@@ -9,12 +9,14 @@ export class GeminiService {
         body: JSON.stringify(context)
       });
 
+      const data = await response.json().catch(() => ({}));
+
       if (!response.ok) {
-        throw new Error(`API error: ${response.status}`);
+        throw new Error(data.message || data.error || `API error: ${response.status}`);
       }
-      return await response.json();
-    } catch (e) {
-      console.error("Mordomo Frontend Failure:", e);
+      return data;
+    } catch (e: any) {
+      console.error("Mordomo Frontend Failure:", e.message || String(e));
       const isBR = context.locale === 'pt-BR';
       const errorText = isBR ? "Peço mil desculpas, senhor. Encontrei uma instabilidade nos dados do mercado brasileiro. Podemos tentar novamente?" : "I deeply apologize, sir. I encountered a momentary disruption in the market data feed. Shall we re-examine your request?";
       return {
@@ -33,7 +35,11 @@ export class GeminiService {
         body: JSON.stringify({ text, locale })
       });
 
-      if (!response.ok) return null;
+      if (!response.ok) {
+        const data = await response.json().catch(() => ({}));
+        console.error("Speak error from server:", data);
+        return null;
+      }
 
       const { audio } = await response.json();
       if (!audio) return null;
