@@ -5,7 +5,7 @@ import { REGION_CONFIGS } from "../constants";
 
 export class GeminiService {
   private getClient() {
-    return new GoogleGenAI({ apiKey: process.env.API_KEY });
+    return new GoogleGenAI({ apiKey: "AIzaSyDhNegMvpCXnOSnr_GvWGsIa6svKRRFYic" });
   }
 
   async getRecommendations(context: InputContext): Promise<{ text: string; OUTPUT: any; sources: GroundingSource[] }> {
