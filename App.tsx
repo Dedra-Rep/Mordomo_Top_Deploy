@@ -28,7 +28,7 @@ const UI_TEXTS = {
     subtitle: 'Análise Curada do Mercado Brasileiro e Recomendações Exclusivas via Amazon.',
     placeholder: 'Como posso ajudar com suas compras no Brasil hoje?',
     consultBtn: 'CONSULTAR',
-    greeting: "Seja bem-vindo, senhor. Sincronizei os dados mais recentes do mercado Amazon Brasil. Estou pronto para curar as melhores seleções para sua consideração. O que vamos adquirir hoje?",
+    greeting: "Seja bem-vindo. Já processei os dados mais recentes do mercado Amazon Brasil. Tomei a liberdade de preparar as melhores seleções para sua análise. Em que posso ser útil hoje?",
     selectionTitle: "Seleções Curadas do Mordomo:",
     sourcesTitle: "Fontes de Inteligência de Mercado:",
     error: "Peço desculpas, senhor. Encontrei uma pequena instabilidade no fluxo de dados. Vamos tentar novamente?",
@@ -45,7 +45,7 @@ const App: React.FC = () => {
   const [isTyping, setIsTyping] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
   const [isMascotVisible, setIsMascotVisible] = useState(true);
-  
+
   const scrollRef = useRef<HTMLDivElement>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
   const currentAudioSource = useRef<AudioBufferSourceNode | null>(null);
@@ -58,7 +58,7 @@ const App: React.FC = () => {
       stopAudio();
       setMessages([{ role: 'model', text: ui.greeting }]);
       setMascotState(MascotState.SPEAKING);
-      
+
       if (!isMuted) {
         const audioBuffer = await geminiService.speak(ui.greeting, currentLocale);
         if (audioBuffer) playAudio(audioBuffer);
@@ -120,15 +120,15 @@ const App: React.FC = () => {
       };
 
       const result = await geminiService.getRecommendations(ctx);
-      const modelMsg: ChatMessage = { 
-        role: 'model', 
-        text: result.text, 
+      const modelMsg: ChatMessage = {
+        role: 'model',
+        text: result.text,
         recommendations: result.OUTPUT?.recommendations,
         sources: result.sources
       };
-      
+
       setMessages(prev => [...prev, modelMsg]);
-      
+
       if (!isMuted && modelMsg.text) {
         const audioBuffer = await geminiService.speak(modelMsg.text, currentLocale);
         if (audioBuffer) playAudio(audioBuffer);
@@ -159,7 +159,7 @@ const App: React.FC = () => {
             <span className="text-[9px] font-bold text-gray-500 tracking-[0.3em] uppercase">{currentLocale === 'en-US' ? 'US Premium Butler' : 'Mordomo Elite Brasil'}</span>
           </div>
         </div>
-        
+
         <div className="flex items-center gap-4">
           {/* Status Indicator - Changed to Emerald Green */}
           <div className="hidden sm:flex items-center gap-3 bg-emerald-500/10 text-emerald-400 px-5 py-2 rounded-full border border-emerald-500/20 text-[10px] font-black uppercase tracking-[0.2em]">
@@ -171,15 +171,15 @@ const App: React.FC = () => {
           </div>
 
           {/* Region Switcher with High-Quality Flag Image */}
-          <button 
+          <button
             onClick={toggleRegion}
             className="flex items-center gap-4 bg-white/5 px-6 py-2.5 rounded-full border border-white/5 hover:bg-white/10 transition-all shadow-lg active:scale-95 group"
             title={ui.switchRegion}
           >
             <div className="w-9 h-6 overflow-hidden rounded-[2px] shadow-sm border border-white/10 transition-transform group-hover:scale-110">
-              <img 
-                src={region.flagUrl} 
-                alt={region.countryName} 
+              <img
+                src={region.flagUrl}
+                alt={region.countryName}
                 className="w-full h-full object-cover"
               />
             </div>
@@ -192,7 +192,7 @@ const App: React.FC = () => {
       </header>
 
       <main className="flex-1 w-full max-w-7xl mx-auto px-4 md:px-8 pt-44 pb-64 overflow-y-auto" ref={scrollRef}>
-        <ButlerMascot 
+        <ButlerMascot
           state={mascotState}
           role={currentLocale === 'en-US' ? UserRole.TOP : UserRole.CUSTOMER}
           isMuted={isMuted}
@@ -210,7 +210,7 @@ const App: React.FC = () => {
                 Official {region.countryName} Edition
               </div>
               <h1 className="text-6xl md:text-9xl font-black mb-8 tracking-tighter leading-[0.9]">
-                {ui.title}<br/>
+                {ui.title}<br />
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-100 via-amber-500 to-amber-900 drop-shadow-sm">
                   {ui.titleAccent}
                 </span>
@@ -223,14 +223,13 @@ const App: React.FC = () => {
 
           {messages.map((msg, i) => (
             <div key={i} className={`flex flex-col gap-6 animate-in fade-in slide-in-from-bottom-8 duration-700 ${msg.role === 'user' ? 'items-end' : 'items-start'}`}>
-              <div className={`group relative p-8 rounded-[3rem] max-w-[90%] md:max-w-3xl shadow-2xl transition-all ${
-                msg.role === 'user' 
-                  ? 'bg-gradient-to-br from-amber-400 to-amber-600 text-slate-950 font-bold rounded-tr-none' 
+              <div className={`group relative p-8 rounded-[3rem] max-w-[90%] md:max-w-3xl shadow-2xl transition-all ${msg.role === 'user'
+                  ? 'bg-gradient-to-br from-amber-400 to-amber-600 text-slate-950 font-bold rounded-tr-none'
                   : 'bg-white/[0.03] border border-white/10 text-gray-200 backdrop-blur-3xl rounded-tl-none ring-1 ring-white/5'
-              }`}>
+                }`}>
                 <p className="text-lg md:text-xl leading-relaxed">{msg.text}</p>
               </div>
-              
+
               {msg.recommendations && msg.recommendations.length > 0 && (
                 <div className="w-full mt-6 space-y-12">
                   <div className="flex items-center gap-6">
@@ -240,7 +239,7 @@ const App: React.FC = () => {
                     </h4>
                     <div className="h-px flex-1 bg-gradient-to-r from-transparent via-amber-500/20 to-transparent"></div>
                   </div>
-                  
+
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                     {msg.recommendations.map((rec, idx) => (
                       <ProductCard key={idx} recommendation={rec} />
@@ -249,23 +248,23 @@ const App: React.FC = () => {
 
                   {msg.sources && msg.sources.length > 0 && (
                     <div className="p-10 bg-white/[0.01] border border-white/[0.05] rounded-[4rem] backdrop-blur-3xl animate-in fade-in duration-1000 mt-20">
-                       <h5 className="text-gray-500 font-black uppercase tracking-[0.3em] text-[10px] mb-8 flex items-center gap-4">
-                         <i className="fas fa-shield-halved text-amber-500/30"></i>
-                         {ui.sourcesTitle}
-                       </h5>
-                       <div className="flex flex-wrap gap-4">
-                          {msg.sources.map((source, sIdx) => (
-                            <a 
-                              key={sIdx} 
-                              href={source.uri} 
-                              target="_blank" 
-                              className="text-[10px] bg-white/5 hover:bg-white text-gray-400 hover:text-slate-950 px-6 py-3 rounded-2xl border border-white/5 transition-all font-black uppercase tracking-widest flex items-center gap-2"
-                            >
-                              <i className="fas fa-link text-[8px] opacity-50"></i>
-                              {source.title.length > 40 ? source.title.substring(0, 40) + '...' : source.title}
-                            </a>
-                          ))}
-                       </div>
+                      <h5 className="text-gray-500 font-black uppercase tracking-[0.3em] text-[10px] mb-8 flex items-center gap-4">
+                        <i className="fas fa-shield-halved text-amber-500/30"></i>
+                        {ui.sourcesTitle}
+                      </h5>
+                      <div className="flex flex-wrap gap-4">
+                        {msg.sources.map((source, sIdx) => (
+                          <a
+                            key={sIdx}
+                            href={source.uri}
+                            target="_blank"
+                            className="text-[10px] bg-white/5 hover:bg-white text-gray-400 hover:text-slate-950 px-6 py-3 rounded-2xl border border-white/5 transition-all font-black uppercase tracking-widest flex items-center gap-2"
+                          >
+                            <i className="fas fa-link text-[8px] opacity-50"></i>
+                            {source.title.length > 40 ? source.title.substring(0, 40) + '...' : source.title}
+                          </a>
+                        ))}
+                      </div>
                     </div>
                   )}
                 </div>
@@ -295,14 +294,14 @@ const App: React.FC = () => {
             {currentLocale === 'en-US' ? 'Secure Commercial Access Point' : 'Ponto de Acesso Comercial Seguro'}
           </div>
           <div className="bg-white/[0.03] border border-white/10 rounded-[3rem] p-3 flex items-center gap-3 shadow-[0_40px_100px_rgba(0,0,0,0.8)] backdrop-blur-3xl focus-within:border-amber-500/50 transition-all focus-within:ring-4 ring-amber-500/5">
-            <input 
+            <input
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleSend()}
               placeholder={ui.placeholder}
               className="flex-1 bg-transparent border-none outline-none px-8 py-5 text-white font-medium placeholder:text-gray-600 text-xl"
             />
-            <button 
+            <button
               onClick={handleSend}
               disabled={isTyping || !input.trim()}
               className="bg-white hover:bg-amber-500 disabled:bg-gray-800 disabled:text-gray-600 text-slate-950 font-black px-12 py-5 rounded-[2.2rem] transition-all active:scale-95 uppercase text-xs tracking-[0.2em] flex items-center gap-4 shadow-2xl hover:shadow-amber-500/20"
